@@ -5,7 +5,7 @@ import cantools
 
 from pathlib import Path
 
-db = cantools.database.load_file('C:\\Users\\nlvat\\vscode-python-projects\\can.dbc')
+db = cantools.database.load_file('C:\\Users\\nlvat\\vscode-python-projects\\.vscode\\i2LoggerProject\\can.dbc')
 db.messages
 
 log = fakeBLFdata.create_blf(Path("drive.blf"), 2)
@@ -50,19 +50,18 @@ def create_csv(blf_path, dbc_message, csv_path = "drive.csv"):
                     }
                 )
 
+create_csv("drive.blf", db.get_message_by_frame_id(960), "drive.csv") 
 
-
-with open("drive.csv", "w", newline="") as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(["timestamp", "channel", "id", "data"])
-    with can.BLFReader("drive.blf") as log:
-        for message in log:
-            writer.writerow(
-                [
-                    f"{message.timestamp:.6f}",
-                    message.channel,
-                    f"0x{message.arbitration_id:X}",
-                    message.data.hex(" "),
-                ]
-            )
-# probably use Can Bus Tools python to add DBC files to the can bus data. (adds units)
+# with open("drive.csv", "w", newline="") as csvfile:
+#     writer = csv.writer(csvfile)
+#     writer.writerow(["timestamp", "channel", "id", "data"])
+#     with can.BLFReader("drive.blf") as log:
+#         for message in log:
+#             writer.writerow(
+#                 [
+#                     f"{message.timestamp:.6f}",
+#                     message.channel,
+#                     f"0x{message.arbitration_id:X}",
+#                     message.data.hex(" "),
+#                 ]
+#             )

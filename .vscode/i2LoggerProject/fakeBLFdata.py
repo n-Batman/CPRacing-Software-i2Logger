@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""Create a small Vector BLF fixture containing deterministic CAN traffic.
-
-Install the only dependency with:
-    python -m pip install python-can
-
-Example:
-    python make_fake_blf.py fake_can.blf
-"""
 
 from __future__ import annotations
 
