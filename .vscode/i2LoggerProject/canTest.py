@@ -3,6 +3,8 @@ import csv
 import fakeBLFdata
 import cantools
 
+import motecLogGenerator
+
 from pathlib import Path
 
 db = cantools.database.load_file('C:\\Users\\nlvat\\vscode-python-projects\\.vscode\\i2LoggerProject\\can.dbc')
@@ -10,12 +12,33 @@ db.messages
 
 log = fakeBLFdata.create_blf(Path("drive.blf"), 2)
 
-def create_csv(blf_path, dbc_message, csv_path = "drive.csv"):
-    #Takes in the DBC message and BLF, and turns the BLF to a csv using DBC as collumns. 
-    signal_names = [signal.name for signal in dbc_message.signals]
+def create_csv(blf_path, csv_path="drive.csv"):
+    """Decode each BLF frame with the matching message from the DBC."""
+    dbc_messages = {}
+    seen_frame_ids = set()
+    signal_names = []
+    seen_signal_names = set()
+
+    # Discover the messages present in the BLF before writing the CSV header.
+    with can.BLFReader(blf_path) as log:
+        for frame in log:
+            if frame.arbitration_id in seen_frame_ids:
+                continue
+            seen_frame_ids.add(frame.arbitration_id)
+
+            try:
+                dbc_message = db.get_message_by_frame_id(frame.arbitration_id)
+            except KeyError:
+                # The DBC does not define this arbitration ID.
+                continue
+
+            dbc_messages[frame.arbitration_id] = dbc_message
+            for signal in dbc_message.signals:
+                if signal.name not in seen_signal_names:
+                    signal_names.append(signal.name)
+                    seen_signal_names.add(signal.name)
 
     with open(csv_path, "w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
         writer = csv.DictWriter(
             csvfile,
             fieldnames=["timestamp", "channel", "id", *signal_names],
@@ -25,8 +48,8 @@ def create_csv(blf_path, dbc_message, csv_path = "drive.csv"):
 
         with can.BLFReader(blf_path) as log:
             for frame in log:
-
-                if frame.arbitration_id != dbc_message.frame_id:
+                dbc_message = dbc_messages.get(frame.arbitration_id)
+                if dbc_message is None:
                     continue
 
                 try:
@@ -40,7 +63,6 @@ def create_csv(blf_path, dbc_message, csv_path = "drive.csv"):
                     )
                     continue
 
-                
                 writer.writerow(
                     {
                         "timestamp": f"{frame.timestamp:.6f}",
@@ -50,18 +72,6 @@ def create_csv(blf_path, dbc_message, csv_path = "drive.csv"):
                     }
                 )
 
-create_csv("drive.blf", db.get_message_by_frame_id(960), "drive.csv") 
+create_csv("drive.blf", "drive.csv")
 
-# with open("drive.csv", "w", newline="") as csvfile:
-#     writer = csv.writer(csvfile)
-#     writer.writerow(["timestamp", "channel", "id", "data"])
-#     with can.BLFReader("drive.blf") as log:
-#         for message in log:
-#             writer.writerow(
-#                 [
-#                     f"{message.timestamp:.6f}",
-#                     message.channel,
-#                     f"0x{message.arbitration_id:X}",
-#                     message.data.hex(" "),
-#                 ]
-#             )
+
