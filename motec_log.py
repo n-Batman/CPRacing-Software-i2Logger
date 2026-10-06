@@ -50,9 +50,21 @@ class MotecLog(object):
         ld_event = ldEvent(self.event_name, self.event_session, self.long_comment, \
             self.VENUE_PTR, ld_venue)
 
-        self.ld_header = ldHead(self.HEADER_PTR, self.HEADER_PTR, self.EVENT_PTR, ld_event, \
-            self.driver, self.vehicle_id, self.venue_name, self.datetime, self.short_comment, \
-            self.event_name, self.event_session)
+        #self.ld_header = ldHead(self.HEADER_PTR, self.HEADER_PTR, self.EVENT_PTR, ld_event, \
+        #    self.driver, self.vehicle_id, self.venue_name, self.datetime, self.short_comment, \
+        #    self.event_name, self.event_session)
+        self.ld_header = ldHead(
+        self.HEADER_PTR,
+        self.HEADER_PTR,
+        self.EVENT_PTR,
+        ld_event,
+        self.driver,
+        self.vehicle_id,
+        self.venue_name,
+        self.datetime,
+        self.short_comment,
+        )
+        
 
     def add_channel(self, log_channel):
         """ Adds a single channel of data to the motec log.
