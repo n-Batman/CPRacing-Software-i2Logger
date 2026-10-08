@@ -12,7 +12,7 @@ from pathlib import Path
 db = cantools.database.load_file('C:\\Users\\nlvat\\vscode-python-projects\\.vscode\\MotecLogGenerator\\i2LoggerProject\\can.dbc')
 db.messages
 
-log = fakeBLFdata.create_blf(Path(__file__).resolve().parent / "drive.blf", 2)
+log = fakeBLFdata.create_blf(Path(__file__).resolve().parent / "drive.blf", 50)
 
 def create_csv(blf_path, csv_path="drive.csv"):
     """Decode BLF frames into fully numeric, forward-filled signal rows."""
@@ -113,7 +113,7 @@ subprocess.run(
         str(Path(__file__).resolve().parent / "drive.csv"),
         "CSV",
         "--output",
-        "drive.ld",
+        str(Path(__file__).resolve().parent / "drive.ld"),
     ],
     check=True,
 )
