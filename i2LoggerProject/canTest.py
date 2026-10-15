@@ -46,9 +46,15 @@ def create_csv(blf_path, csv_path="drive.csv"):
     for frame_id, message in dbc_messages.items():
         for signal in message.signals:
             if signal_name_counts[signal.name] > 1:
-                column_name = f"{message.name}.{signal.name}"
+                signal_name = f"{message.name}.{signal.name}"
             else:
-                column_name = signal.name
+                signal_name = signal.name
+
+            # cantools represents a missing or empty DBC unit as None or "".
+            # Keep the unit field in every header so downstream CSV consumers
+            # can consistently parse columns as "Name (Units)".
+            unit = signal.unit or ""
+            column_name = f"{signal_name} ({unit})"
 
             signal_columns.append(column_name)
             column_lookup[(frame_id, signal.name)] = column_name
